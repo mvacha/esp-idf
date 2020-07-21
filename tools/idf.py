@@ -49,7 +49,8 @@ PYTHON = sys.executable
 
 # note: os.environ changes don't automatically propagate to child processes,
 # you have to pass env=os.environ explicitly anywhere that we create a process
-os.environ["PYTHON"] = sys.executable
+import pathlib
+os.environ["PYTHON"] = pathlib.Path(sys.executable).as_posix()
 
 # Name of the program, normally 'idf.py'.
 # Can be overridden from idf.bat using IDF_PY_PROGRAM_NAME
