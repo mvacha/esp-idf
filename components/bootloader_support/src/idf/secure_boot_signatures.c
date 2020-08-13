@@ -125,7 +125,7 @@ esp_err_t esp_secure_boot_verify_ecdsa_signature_block(const esp_secure_boot_sig
     MBEDTLS_MPI_CHK(mbedtls_mpi_read_binary(&ecdsa_context.Q.Y, signature_verification_key_start + plen, plen));
     MBEDTLS_MPI_CHK(mbedtls_mpi_lset(&ecdsa_context.Q.Z, 1));
 
-    ret = mbedtls_ecdsa_verify(&ecdsa_context.grp, image_digest, DIGEST_LEN, &ecdsa_context.Q, &r, &s);
+    ret = mbedtls_ecdsa_verify_sw(&ecdsa_context.grp, image_digest, DIGEST_LEN, &ecdsa_context.Q, &r, &s);
     ESP_LOGD(TAG, "Verification result %d", ret);
 
 cleanup:

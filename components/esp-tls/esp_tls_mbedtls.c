@@ -393,6 +393,7 @@ esp_err_t set_client_config(const char *hostname, size_t hostlen, esp_tls_cfg_t 
         }
         /* Hostname set here should match CN in server certificate */
         if ((ret = mbedtls_ssl_set_hostname(&tls->ssl, use_host)) != 0) {
+            ESP_LOGI(TAG, "Hostname for validation: %s", use_host);
             ESP_LOGE(TAG, "mbedtls_ssl_set_hostname returned -0x%x", -ret);
             ESP_INT_EVENT_TRACKER_CAPTURE(tls->error_handle, ERR_TYPE_MBEDTLS, -ret);
             free(use_host);
@@ -429,7 +430,7 @@ esp_err_t set_client_config(const char *hostname, size_t hostlen, esp_tls_cfg_t 
 
     if (cfg->crt_bundle_attach != NULL) {
 #ifdef CONFIG_MBEDTLS_CERTIFICATE_BUNDLE
-        ESP_LOGD(TAG, "Use certificate bundle");
+        ESP_LOGI(TAG, "Use certificate bundle");
         mbedtls_ssl_conf_authmode(&tls->conf, MBEDTLS_SSL_VERIFY_REQUIRED);
         cfg->crt_bundle_attach(&tls->conf);
 #else //CONFIG_MBEDTLS_CERTIFICATE_BUNDLE
@@ -437,11 +438,13 @@ esp_err_t set_client_config(const char *hostname, size_t hostlen, esp_tls_cfg_t 
         return ESP_ERR_INVALID_STATE;
 #endif
     } else if (cfg->use_global_ca_store == true) {
+        ESP_LOGI(TAG, "ADDED global store");
         esp_err_t esp_ret = set_global_ca_store(tls);
         if (esp_ret != ESP_OK) {
             return esp_ret;
         }
     } else if (cfg->cacert_buf != NULL) {
+        ESP_LOGI(TAG, "ADDED cacert");
         esp_err_t esp_ret = set_ca_cert(tls, cfg->cacert_buf, cfg->cacert_bytes);
         if (esp_ret != ESP_OK) {
             return esp_ret;
@@ -464,6 +467,7 @@ esp_err_t set_client_config(const char *hostname, size_t hostlen, esp_tls_cfg_t 
         return ESP_ERR_INVALID_STATE;
 #endif
     } else {
+        ESP_LOGW(TAG, "WARNING - no SSL verification mode set!");
         mbedtls_ssl_conf_authmode(&tls->conf, MBEDTLS_SSL_VERIFY_NONE);
     }
 
